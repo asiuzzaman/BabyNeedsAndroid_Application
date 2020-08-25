@@ -11,8 +11,10 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.babyapp2.R;
+import com.example.babyapp2.data.DatabaseHandler;
 import com.example.babyapp2.model.Item;
 
+import java.text.MessageFormat;
 import java.util.List;
 
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder> {
@@ -37,11 +39,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(@NonNull RecyclerViewAdapter.ViewHolder holder, int position) {
         Item item=itemList.get(position);
-        holder.itemName.setText(item.getItemName());
-        holder.itemColor.setText(item.getItemColor());
-        holder.quantity.setText(item.getItemQuentity()+"");
-        holder.size.setText(item.getItemSize()+"");
-        holder.dateAdded.setText(item.getDateItemAdded());
+        holder.itemName.setText(MessageFormat.format("Item Name: {0}", item.getItemName()));
+        holder.itemColor.setText(MessageFormat.format("Color: {0}", item.getItemColor()));
+        holder.quantity.setText(MessageFormat.format("Qty: {0}", item.getItemQuentity()));
+        holder.size.setText(MessageFormat.format("Size: {0}", item.getItemSize()));
+        holder.dateAdded.setText(MessageFormat.format("Added time: {0}", item.getDateItemAdded()));
     }
 
     @Override
@@ -94,6 +96,11 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
         }
 
         private void deleteItem(int id) {
+
+            DatabaseHandler db = new DatabaseHandler(context);
+            db.delete(id);
+           itemList.remove(getAdapterPosition());
+           notifyItemRemoved(getAdapterPosition());
         }
 
         private void editItem(Item item) {

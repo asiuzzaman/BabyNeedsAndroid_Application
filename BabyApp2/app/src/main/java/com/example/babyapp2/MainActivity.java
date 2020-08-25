@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         databaseHandler = new DatabaseHandler(this);
+        byPassActivity();
 
         //Todo: Check whether the items are saved..
 
@@ -57,6 +58,13 @@ public class MainActivity extends AppCompatActivity {
 //                        .setAction("Action", null).show();
             }
         });
+    }
+
+    private void byPassActivity() {
+        if(databaseHandler.getItemsCount()>0){
+            startActivity(new Intent(MainActivity.this,ListActivity.class));
+            finish();
+        }
     }
 
     private void saveAllItem(View view) {
