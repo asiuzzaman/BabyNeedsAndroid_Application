@@ -14,4 +14,9 @@
     <string name="baby_item_quentity">QUANTITY</string>
     <string name="enter_your_baby_item">ITEM</string>
     <string name="enter_the_size_of_item">SIZE</string>
+    <string name="sure_text">Are you sure?</string>
+    <string name="no_text">No</string>
+    <string name="yes_text">Yes</string>
+    <string name="edit_item">Edit Item</string>
+    <string name="update_text">Update</string>
 </resources>

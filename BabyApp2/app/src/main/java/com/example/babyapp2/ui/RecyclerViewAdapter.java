@@ -1,10 +1,12 @@
 package com.example.babyapp2.ui;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -13,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.babyapp2.R;
 import com.example.babyapp2.data.DatabaseHandler;
 import com.example.babyapp2.model.Item;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -22,6 +25,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
 
     private Context context;
     private List<Item>itemList;
+    private AlertDialog.Builder builder;
+    private LayoutInflater inflater;
+    private AlertDialog alertDialog;
     public RecyclerViewAdapter(Context context, List<Item>itemList) {
             this.context=context;
             this.itemList=itemList;
@@ -95,15 +101,96 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
             }
         }
 
-        private void deleteItem(int id) {
+        private void deleteItem(final int id) {
+            builder=new AlertDialog.Builder(context);
+            inflater = LayoutInflater.from(context);
+            View view = inflater.inflate(R.layout.confirmation_popup,null);
 
-            DatabaseHandler db = new DatabaseHandler(context);
-            db.delete(id);
-           itemList.remove(getAdapterPosition());
-           notifyItemRemoved(getAdapterPosition());
+            Button yes_button = view.findViewById(R.id.conf_yes_button);
+            Button no_button = view.findViewById(R.id.conf_no_button);
+
+            builder.setView(view);
+            alertDialog= builder.create();
+            alertDialog.show();
+            yes_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseHandler db = new DatabaseHandler(context);
+                    db.delete(id);
+                    itemList.remove(getAdapterPosition());
+                    notifyItemRemoved(getAdapterPosition());
+                    alertDialog.dismiss();
+                }
+            });
+            no_button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                        alertDialog.dismiss();
+                }
+            });
+
         }
 
-        private void editItem(Item item) {
+        private void editItem(final Item newItem) {
+
+          //  Item item = itemList.get(getAdapterPosition());
+
+            builder=new AlertDialog.Builder(context);
+            inflater = LayoutInflater.from(context);
+            final View view = inflater.inflate(R.layout.popup,null);
+
+            Button saveButton;
+            final EditText babyItem,itemQuentity,itemColor,itemSize;
+            TextView title;
+
+            // Connect the entity
+            babyItem=view.findViewById(R.id.baby_item);
+            itemQuentity=view.findViewById(R.id.item_quentity);
+            itemColor=view.findViewById(R.id.item_color);
+            itemSize=view.findViewById(R.id.item_size);
+            title = view.findViewById(R.id.title);
+            saveButton =view.findViewById(R.id.save_button);
+            saveButton.setText(R.string.update_text);
+
+            // set up items
+            title.setText(R.string.edit_item);
+            babyItem.setText(newItem.getItemName());
+            itemQuentity.setText(String.valueOf(newItem.getItemQuentity()));
+            itemColor.setText(newItem.getItemColor());
+            itemSize.setText(String.valueOf(newItem.getItemSize()));
+
+            builder.setView(view);
+            alertDialog= builder.create();
+            alertDialog.show();
+
+            saveButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    DatabaseHandler databaseHandler = new DatabaseHandler(context);
+
+                    //Todo: Update Items
+                    newItem.setItemName(babyItem.getText().toString());
+                    newItem.setItemColor(itemColor.getText().toString());
+                    newItem.setItemQuentity(Integer.parseInt(itemQuentity.getText().toString()));
+                    newItem.setItemSize(Integer.parseInt(itemSize.getText().toString()));
+
+                    if(!babyItem.getText().toString().isEmpty()
+                            && !itemColor.getText().toString().isEmpty()
+                            && ! itemQuentity.getText().toString().isEmpty()
+                            && ! itemSize.getText().toString().isEmpty()
+                    ){
+                        databaseHandler.updateItem(newItem);
+                        Snackbar.make(view,"Data updated successfully",Snackbar.LENGTH_SHORT).show();
+                        notifyItemChanged(getAdapterPosition(),newItem);
+                    }else{
+                        Snackbar.make(view,"Fields are Empty",Snackbar.LENGTH_SHORT).show();
+                    }
+                    alertDialog.dismiss();
+
+                }
+            });
+
+
         }
     }
 }
